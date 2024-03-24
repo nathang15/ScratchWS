@@ -11,6 +11,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <stdint.h>
 
 namespace Uri {
 
@@ -33,12 +34,6 @@ namespace Uri {
          * This is the default constructor.
          */
         Uri();
-
-        /**
-         * Set path delimiter
-         */
-
-        void SetPathDelimiter(const std::string& newPathDelimiter);
 
         /**
          * Builds the URI from parsed elements from rendered string of URI.
@@ -77,6 +72,26 @@ namespace Uri {
          * @retval "" if there is no path element in URI
         */
         std::vector< std::string > GetPath() const;
+
+
+        /**
+        * Returns True if URI includes a port number else False.
+        *
+        * @return boolean value
+        */
+
+        bool HasPort() const;
+
+
+        /**
+        * Returns the port number if URI includes one.
+        *
+        * @return the unsinged port number
+        *
+        * @note The returned port number is only valid if HasPort == True
+        */
+
+        uint16_t GetPort() const;
 
 
         // Private properties
