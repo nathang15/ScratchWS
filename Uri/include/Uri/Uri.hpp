@@ -93,6 +93,20 @@ namespace Uri {
 
         uint16_t GetPort() const;
 
+        /**
+        * Indicates whether or not URI is relative reference
+        *
+        * @return true if is relative. false otherwise
+        */
+        bool IsRelativeReference() const;
+
+        /**
+        * Indicates whether or not URI contains relative path
+        *
+        * @return true if contains relative path. false otherwise
+        */
+        bool ContainsRelativePath() const;
+
 
         // Private properties
     private:

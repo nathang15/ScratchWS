@@ -47,13 +47,22 @@ namespace Uri {
         // TODO Refactor later!!
         // Parse scheme
         const auto schemeEnd = uriString.find(":");
-        impl_->scheme = uriString.substr(0, schemeEnd);
-        auto remainingUriString = uriString.substr(schemeEnd + 1);
-
+        std::string remainingUriString;
+        if (schemeEnd == std::string::npos) {
+            impl_->scheme.clear();
+            remainingUriString = uriString;            
+        }
+        else {
+            impl_->scheme = uriString.substr(0, schemeEnd);
+            remainingUriString = uriString.substr(schemeEnd + 1);
+        }
         // Parse host
         impl_->hasPort = false;
         if (remainingUriString.substr(0, 2) == "//") {
-            const auto authorityEnd = remainingUriString.find('/', 2);
+            auto authorityEnd = remainingUriString.find('/', 2);
+            if (authorityEnd == std::string::npos) {
+                authorityEnd = remainingUriString.length();
+            }
             const auto portDelimiter = remainingUriString.find(':');
             if (portDelimiter == std::string::npos) {
                 impl_->host = remainingUriString.substr(2, authorityEnd - 2);
@@ -128,6 +137,19 @@ namespace Uri {
 
     uint16_t Uri::GetPort() const {
         return impl_->port;
+    }
+
+    bool Uri::IsRelativeReference() const {
+        return impl_->scheme.empty();
+    }
+
+    bool Uri::ContainsRelativePath() const {
+        if (impl_->path.empty()) {
+            return true;
+        }
+        else {
+            return !impl_->path[0].empty();
+        }
     }
 
 }

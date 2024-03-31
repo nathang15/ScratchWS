@@ -2,6 +2,19 @@
 #include <Uri/Uri.hpp>
 #include <stddef.h>
 
+TEST(UriTests, ParseStringNoScheme) {
+    Uri::Uri uri;
+    ASSERT_TRUE(uri.StringParse("foo/bar"));
+    ASSERT_EQ("", uri.GetScheme());
+    ASSERT_EQ(
+        (std::vector< std::string >{
+            "foo",
+            "bar",
+    }),
+        uri.GetPath()
+    );
+}
+
 TEST(UriTests, StringParseUrl) {
     Uri::Uri uri;
     ASSERT_TRUE(uri.StringParse("http://www.example.com/foo/bar"));
@@ -99,4 +112,53 @@ TEST(UriTests, StringParseBadPortNegative) {
 TEST(UriTests, StringParseBadPortNumberOutOfRange) {
     Uri::Uri uri;
     ASSERT_FALSE(uri.StringParse("http://www.example.com:65536/foo/bar"));
+}
+
+TEST(UriTests, StringParseEndsAfterAuthority) {
+    Uri::Uri uri;
+    ASSERT_TRUE(uri.StringParse("http://www/example.com"));
+}
+
+TEST(UriTests, StringParseRelativePathVsNonRelativeReference) {
+    struct TestVector {
+        std::string uriString;
+        bool isRelativeReference;
+    };
+    const std::vector< TestVector > testVectors{
+        {"http://www.example.com/", false},
+        {"http://www.example.com", false},
+        {"/", true},
+        {"foo", true},
+    };
+    size_t index = 0;
+    for (const auto& testVector : testVectors) {
+        Uri::Uri uri;
+        ASSERT_TRUE(uri.StringParse(testVector.uriString)) << index;
+        ASSERT_EQ(testVector.isRelativeReference, uri.IsRelativeReference()) << index;
+        ++index;
+    };
+}
+
+TEST(UriTests, StringParseRelativePathVsNonRelativePaths) {
+    struct TestVector {
+        std::string uriString;
+        bool containsRelativePath;
+    };
+    const std::vector< TestVector > testVectors{
+        {"http://www.example.com/", false},
+        {"http://www.example.com", true},
+        {"/", false},
+        {"foo", true},
+        /*
+        *NOTE: only a valid test vector if empty string is a valid path
+        */ 
+        {"", true},
+    };
+    size_t index = 0;
+    for (const auto& testVector : testVectors) {
+        Uri::Uri uri;
+        ASSERT_TRUE(uri.StringParse(testVector.uriString)) << index;
+        ASSERT_EQ(testVector.containsRelativePath, uri.ContainsRelativePath()) << index;
+        ++index;
+    };
 }
