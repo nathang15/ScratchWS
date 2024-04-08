@@ -146,7 +146,7 @@ TEST(UriTests, StringParseRelativePathVsNonRelativePaths) {
     };
     const std::vector< TestVector > testVectors{
         {"http://www.example.com/", false},
-        {"http://www.example.com", true},
+        {"http://www.example.com", false},
         {"/", false},
         {"foo", true},
         /*
@@ -159,6 +159,56 @@ TEST(UriTests, StringParseRelativePathVsNonRelativePaths) {
         Uri::Uri uri;
         ASSERT_TRUE(uri.StringParse(testVector.uriString)) << index;
         ASSERT_EQ(testVector.containsRelativePath, uri.ContainsRelativePath()) << index;
+        ++index;
+    };
+}
+
+TEST(UriTests, ParseFromStringQueryAndFragmentElements) {
+    struct TestVector {
+        std::string uriString;
+        std::string host;
+        std::string query;
+        std::string fragment;
+    };
+    const std::vector< TestVector > testVectors{
+        {"http://www.example.com/", "www.example.com", "", ""},
+        {"http://www.example.com/?", "www.example.com", "", ""},
+        {"http://example.com?foo", "example.com", "foo", ""},
+        {"http://www.example.com#foo", "www.example.com", "", "foo"},
+        {"http://www.example.com?foo#bar", "www.example.com", "foo", "bar"},
+        {"http://www.example.com?earth?day#bar", "www.example.com", "earth?day", "bar"},
+        {"http://example.com/spam?foo#bar", "example.com", "foo", "bar"}
+    };
+    size_t index = 0;
+    for (const auto& testVector : testVectors) {
+        Uri::Uri uri;
+        ASSERT_TRUE(uri.StringParse(testVector.uriString)) << index;
+        ASSERT_EQ(testVector.host, uri.GetHost()) << index;
+        ASSERT_EQ(testVector.query, uri.GetQuery()) << index;
+        ASSERT_EQ(testVector.fragment, uri.GetFragment()) << index;
+        ++index;
+    };
+}
+
+TEST(UriTests, StringParseUserInfo) {
+    struct TestVector {
+        std::string uriString;
+        std::string userInfo;
+    };
+    const std::vector< TestVector > testVectors{
+        {"http://www.example.com/", ""},
+        {"http://joe@www.example.com", "joe"},
+        {"http://pepe:feelsbadman@www.example.com", "pepe:feelsbadman"},
+        {"//www.example.com", ""},
+        {"//bob@www.example.com", "bob"},
+        {"/", ""},
+        {"foo", ""},
+    };
+    size_t index = 0;
+    for (const auto& testVector : testVectors) {
+        Uri::Uri uri;
+        ASSERT_TRUE(uri.StringParse(testVector.uriString)) << index;
+        ASSERT_EQ(testVector.userInfo, uri.GetUserInfo()) << index;
         ++index;
     };
 }

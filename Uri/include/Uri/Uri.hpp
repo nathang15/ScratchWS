@@ -54,6 +54,14 @@ namespace Uri {
         std::string GetScheme() const;
 
         /**
+         * Returns the user info element of the URI.
+         *
+         * @return the user info
+         *
+        */
+        std::string GetUserInfo() const;
+
+        /**
          * Returns the host of the URI
          * 
          * @return the host of URI
@@ -106,6 +114,20 @@ namespace Uri {
         * @return true if contains relative path. false otherwise
         */
         bool ContainsRelativePath() const;
+
+        /**
+        * Return the fragment of Uri if has one
+        * @return the fragment
+        * 
+        */
+        std::string GetFragment() const;
+
+        /**
+        * Return the query of Uri if has one
+        * @return the query
+        *
+        */
+        std::string GetQuery() const;
 
 
         // Private properties
